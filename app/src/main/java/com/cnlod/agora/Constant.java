@@ -20,4 +20,8 @@ public class Constant {
             return false;
         }
     }
+
+    public static String userId1 = "2";
+    public static String userId2 = "22";
+    public static String userId3 = "34";
 }

@@ -1,4 +1,4 @@
-package com.cnlod.agora;
+package com.cnlod.agora.ui;
 
 import android.Manifest;
 import android.content.Intent;
@@ -18,6 +18,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cnlod.agora.AGApplication;
+import com.cnlod.agora.Constant;
+import com.cnlod.agora.R;
 import com.cnlod.agora.util.Ls;
 
 import java.util.Locale;
@@ -33,7 +36,7 @@ import io.agora.rtc.video.VideoEncoderConfiguration;
  * Created by beryl on 2017/11/6.
  */
 
-public class CallActivity extends AppCompatActivity implements AGApplication.OnAgoraEngineInterface {
+public class CallForAudioActivity extends AppCompatActivity implements AGApplication.OnAgoraEngineInterface {
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
@@ -61,6 +64,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
+        Ls.e("音频！！！！");
 
         InitUI();
 
@@ -212,10 +216,10 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
                     @Override
                     public void run() {
                         if (i == IAgoraAPI.ECODE_LOGOUT_E_KICKED) { // other login the account
-                            Toast.makeText(CallActivity.this, "Other login account ,you are logout.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CallForAudioActivity.this, "Other login account ,you are logout.", Toast.LENGTH_SHORT).show();
 
                         } else if (i == IAgoraAPI.ECODE_LOGOUT_E_NET) { // net
-                            Toast.makeText(CallActivity.this, "Logout for Network can not be.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CallForAudioActivity.this, "Logout for Network can not be.", Toast.LENGTH_SHORT).show();
                             finish();
                         }
                         Intent intent = new Intent();
@@ -295,9 +299,9 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
                     @Override
                     public void run() {
                         if (s2.contains("status") && s2.contains("1")) {
-                            Toast.makeText(CallActivity.this, account + " reject your call for busy", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CallForAudioActivity.this, account + " reject your call for busy", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(CallActivity.this, account + " reject your call", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CallForAudioActivity.this, account + " reject your call", Toast.LENGTH_SHORT).show();
                         }
 
                         onEncCallClicked();
