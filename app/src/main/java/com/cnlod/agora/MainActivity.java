@@ -5,12 +5,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.security.NoSuchAlgorithmException;
+import com.cnlod.agora.util.Ls;
 
 import io.agora.AgoraAPI;
 import io.agora.IAgoraAPI;
@@ -21,8 +20,6 @@ import io.agora.rtc.RtcEngine;
  * app desigine account must be number
  */
 public class MainActivity extends AppCompatActivity {
-    private final String TAG = "-LogUtil-";
-
     private EditText textAccountName;
     private String appId;
     private int uid;
@@ -56,31 +53,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private String getToken(String account) {
-        int s = (int) (System.currentTimeMillis() / 1000);
-        try {
-            return SignalingToken.getToken(appId, "307fba739ae048ec84137bb81da8beb4", account, s + 2 * 3600);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return "_no_need_token";
-    }
-
     // login signaling
     public void onClickLogin(View v) {
-        Log.i(TAG, "onClickLogin");
+        Ls.w("onClickLogin");
         account = textAccountName.getText().toString().trim();
 
-        AGApplication.the().getmAgoraAPI().login2(appId, account, getToken(account), 0, "", 5, 1);
+        AGApplication.the().getmAgoraAPI().login2(appId, account, "_no_need_token", 0, "", 5, 1);
     }
 
     private void addCallback() {
-        Log.i(TAG, "addCallback enter.");
+        Ls.w("addCallback enter.");
         AGApplication.the().getmAgoraAPI().callbackSet(new AgoraAPI.CallBack() {
 
             @Override
             public void onLoginSuccess(int i, int i1) {
-                Log.i(TAG, "onLoginSuccess " + i + "  " + i1);
+                Ls.w("onLoginSuccess " + i + "  " + i1);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -95,13 +82,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLogout(int i) {
-                Log.i(TAG, "onLogout  i = " + i);
+                Ls.w("onLogout  i = " + i);
 
             }
 
             @Override
             public void onLoginFailed(final int i) {
-                Log.i(TAG, "onLoginFailed " + i);
+                Ls.w("onLoginFailed " + i);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -114,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(String s, int i, String s1) {
-                Log.i(TAG, "onError s:" + s + " s1:" + s1);
+                Ls.w("onError s:" + s + " s1:" + s1);
             }
 
         });
@@ -129,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy");
+        Ls.w("onDestroy");
         RtcEngine.destroy();
     }
 }

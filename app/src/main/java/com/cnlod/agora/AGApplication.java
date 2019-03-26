@@ -3,12 +3,13 @@ package com.cnlod.agora;
 import android.app.Application;
 import android.util.Log;
 
+import com.cnlod.agora.util.Ls;
+
 import io.agora.AgoraAPIOnlySignal;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
 
 public class AGApplication extends Application {
-    private final String TAG = "-LogUtil-";
 
     private static AGApplication mInstance;
     private AgoraAPIOnlySignal m_agoraAPI;
@@ -34,7 +35,7 @@ public class AGApplication extends Application {
 
         @Override
         public void onUserOffline(int uid, int reason) {
-            Log.i(TAG, "onUserOffline uid: " + uid + " reason:" + reason);
+            Ls.w("onUserOffline uid: " + uid + " reason:" + reason);
             if (onAgoraEngineInterface != null) {
                 onAgoraEngineInterface.onUserOffline(uid, reason);
             }
@@ -50,7 +51,7 @@ public class AGApplication extends Application {
         @Override
         public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
             super.onJoinChannelSuccess(channel, uid, elapsed);
-            Log.i(TAG, "onJoinChannelSuccess channel:" + channel + " uid:" + uid);
+            Ls.w("onJoinChannelSuccess channel:" + channel + " uid:" + uid);
             if (onAgoraEngineInterface != null) {
                 onAgoraEngineInterface.onJoinChannelSuccess(channel, uid, elapsed);
             }
@@ -79,9 +80,9 @@ public class AGApplication extends Application {
         try {
             m_agoraAPI = AgoraAPIOnlySignal.getInstance(this, appID);
             mRtcEngine = RtcEngine.create(getBaseContext(), appID, mRtcEventHandler);
-            Log.i(TAG, "setupAgoraEngine mRtcEngine :" + mRtcEngine);
+            Ls.w("setupAgoraEngine mRtcEngine :" + mRtcEngine);
         } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
+            Ls.e(Log.getStackTraceString(e));
             throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
         }
     }

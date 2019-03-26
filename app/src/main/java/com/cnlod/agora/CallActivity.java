@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.CheckBox;
@@ -18,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.cnlod.agora.util.Ls;
 
 import java.util.Locale;
 
@@ -33,7 +34,6 @@ import io.agora.rtc.video.VideoEncoderConfiguration;
  */
 
 public class CallActivity extends AppCompatActivity implements AGApplication.OnAgoraEngineInterface {
-    private final String TAG = "-LogUtil-";
 
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
@@ -110,13 +110,13 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.i(TAG, "onNewIntent");
+        Ls.w( "onNewIntent");
         setupData();
     }
 
     @Override
     public void onFirstRemoteVideoDecoded(final int uid, int width, int height, int elapsed) { // Tutorial Step 5
-        Log.i(TAG, "onFirstRemoteVideoDecoded  uid:" + uid);
+        Ls.w( "onFirstRemoteVideoDecoded  uid:" + uid);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -195,7 +195,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
 
     @Override
     public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
-        Log.i(TAG, "onJoinChannelSuccess channel: " + channel + " uid: " + uid);
+        Ls.w( "onJoinChannelSuccess channel: " + channel + " uid: " + uid);
     }
 
     private void addSignalingCallback() {
@@ -207,7 +207,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
 
             @Override
             public void onLogout(final int i) {
-                Log.i(TAG, "onLogout  i = " + i);
+                Ls.w( "onLogout  i = " + i);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -232,7 +232,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
              */
             @Override
             public void onInviteReceived(final String channelID, final String account, final int uid, String s2) {
-                Log.i(TAG, "onInviteReceived  channelID = " + channelID + "  account = " + account);
+                Ls.w( "onInviteReceived  channelID = " + channelID + "  account = " + account);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -250,7 +250,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
              */
             @Override
             public void onInviteReceivedByPeer(final String channelID, String account, int uid) {
-                Log.i(TAG, "onInviteReceivedByPeer  channelID = " + channelID + "  account = " + account);
+                Ls.w( "onInviteReceivedByPeer  channelID = " + channelID + "  account = " + account);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -290,7 +290,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
 
             @Override
             public void onInviteRefusedByPeer(String channelID, final String account, int uid, final String s2) {
-                Log.i(TAG, "onInviteRefusedByPeer channelID = " + channelID + " account = " + account + " s2 = " + s2);
+                Ls.w( "onInviteRefusedByPeer channelID = " + channelID + " account = " + account + " s2 = " + s2);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -315,7 +315,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
              */
             @Override
             public void onInviteEndByPeer(final String channelID, String account, int uid, String s2) {
-                Log.i(TAG, "onInviteEndByPeer channelID = " + channelID + " account = " + account);
+                Ls.w( "onInviteEndByPeer channelID = " + channelID + " account = " + account);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -335,7 +335,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
              */
             @Override
             public void onInviteEndByMyself(String channelID, String account, int uid) {
-                Log.i(TAG, "onInviteEndByMyself channelID = " + channelID + "  account = " + account);
+                Ls.w( "onInviteEndByMyself channelID = " + channelID + "  account = " + account);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -365,7 +365,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
     protected void onDestroy() {
         super.onDestroy();
 
-        Log.i(TAG, "onDestroy");
+        Ls.w( "onDestroy");
 
         if (mRtcEngine != null) {
             mRtcEngine.stopPreview();
@@ -377,7 +377,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
 
     @Override
     public void onBackPressed() {
-        Log.i(TAG, "onBackPressed callType: " + callType + " mIsCallInRefuse: " + mIsCallInRefuse);
+        Ls.w( "onBackPressed callType: " + callType + " mIsCallInRefuse: " + mIsCallInRefuse);
         if (callType == Constant.CALL_IN && mIsCallInRefuse) {
             callInRefuse();
         } else {
@@ -400,7 +400,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
     private void initializeAgoraEngine() {
         mAgoraAPI = AGApplication.the().getmAgoraAPI();
         mRtcEngine = AGApplication.the().getmRtcEngine();
-        Log.i(TAG, "initializeAgoraEngine mRtcEngine :" + mRtcEngine);
+        Ls.w( "initializeAgoraEngine mRtcEngine :" + mRtcEngine);
         if (mRtcEngine != null) {
             mRtcEngine.setLogFile("/sdcard/sdklog.txt");
         }
@@ -425,18 +425,18 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
         mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_HIDDEN, 0));
         mLayoutBigView.setVisibility(View.VISIBLE);
         int ret = mRtcEngine.startPreview();
-        Log.i(TAG, "setupLocalVideo startPreview enter << ret :" + ret);
+        Ls.w( "setupLocalVideo startPreview enter << ret :" + ret);
     }
 
     // Tutorial Step 4
     private void joinChannel() {
         int ret = mRtcEngine.joinChannel(null, channelName, "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
-        Log.i(TAG, "joinChannel enter ret :" + ret);
+        Ls.w( "joinChannel enter ret :" + ret);
     }
 
     // Tutorial Step 5
     private void setupRemoteVideo(int uid) {
-        Log.i(TAG, "setupRemoteVideo uid: " + uid + " " + mLayoutBigView.getChildCount());
+        Ls.w( "setupRemoteVideo uid: " + uid + " " + mLayoutBigView.getChildCount());
         if (mLayoutBigView.getChildCount() >= 1) {
             mLayoutBigView.removeAllViews();
         }
@@ -475,7 +475,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
 
 
     public boolean checkSelfPermission(String permission, int requestCode) {
-        Log.i(TAG, "checkSelfPermission " + permission + " " + requestCode);
+        Ls.w( "checkSelfPermission " + permission + " " + requestCode);
         if (ContextCompat.checkSelfPermission(this,
                 permission)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -491,7 +491,7 @@ public class CallActivity extends AppCompatActivity implements AGApplication.OnA
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
-        Log.i(TAG, "onRequestPermissionsResult " + grantResults[0] + " " + requestCode);
+        Ls.w( "onRequestPermissionsResult " + grantResults[0] + " " + requestCode);
 
         switch (requestCode) {
             case PERMISSION_REQ_ID_RECORD_AUDIO: {

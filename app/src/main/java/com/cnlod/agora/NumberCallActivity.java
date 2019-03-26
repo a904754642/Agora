@@ -3,12 +3,13 @@ package com.cnlod.agora;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.cnlod.agora.util.Ls;
 
 import java.util.Locale;
 
@@ -21,7 +22,6 @@ import io.agora.IAgoraAPI;
  */
 
 public class NumberCallActivity extends AppCompatActivity {
-    private final String TAG ="-LogUtil-";
 
     private String mMyAccount;
     private String mSubscriber;
@@ -77,7 +77,7 @@ public class NumberCallActivity extends AppCompatActivity {
                     Toast.makeText(this, "fast click", Toast.LENGTH_SHORT).show();
                 }
 
-                Log.i(TAG, "call number call init");
+                Ls.w("call number call init");
 
                 break;
         }
@@ -104,7 +104,7 @@ public class NumberCallActivity extends AppCompatActivity {
 
             @Override
             public void onLogout(final int i) {
-                Log.i(TAG, "onLogout  i = " + i);
+                Ls.w("onLogout  i = " + i);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -123,12 +123,12 @@ public class NumberCallActivity extends AppCompatActivity {
 
             @Override
             public void onLoginFailed(int i) {
-                Log.i(TAG, "onLoginFailed  i = " + i);
+                Ls.w("onLoginFailed  i = " + i);
             }
 
             @Override
             public void onInviteReceived(final String channelID, final String account, int uid, String s2) { //call out other remote receiver
-                Log.i(TAG, "onInviteReceived  channelID = " + channelID + " account = " + account);
+                Ls.w("onInviteReceived  channelID = " + channelID + " account = " + account);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -144,7 +144,7 @@ public class NumberCallActivity extends AppCompatActivity {
 
             @Override
             public void onInviteReceivedByPeer(final String channelID, final String account, int uid) {//call out other local receiver
-                Log.i(TAG, "onInviteReceivedByPeer  channelID = " + channelID + "  account = " + account);
+                Ls.w("onInviteReceivedByPeer  channelID = " + channelID + "  account = " + account);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -161,12 +161,12 @@ public class NumberCallActivity extends AppCompatActivity {
 
             @Override
             public void onInviteFailed(String channelID, String account, int uid, int i1, String s2) {
-                Log.i(TAG, "onInviteFailed  channelID = " + channelID + " account = " + account + " s2: " + s2 + " i1: " + i1);
+                Ls.w("onInviteFailed  channelID = " + channelID + " account = " + account + " s2: " + s2 + " i1: " + i1);
             }
 
             @Override
             public void onError(final String s, int i, final String s1) {
-                Log.e(TAG, "onError s = " + s + " i = " + i + " s1 = " + s1);
+                Ls.e("onError s = " + s + " i = " + i + " s1 = " + s1);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -180,7 +180,7 @@ public class NumberCallActivity extends AppCompatActivity {
 
             @Override
             public void onQueryUserStatusResult(final String name, final String status) {
-                Log.i(TAG, "onQueryUserStatusResult name = " + name + " status = " + status);
+                Ls.w("onQueryUserStatusResult name = " + name + " status = " + status);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -208,14 +208,14 @@ public class NumberCallActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        Log.i(TAG, "onDestroy");
+        Ls.w("onDestroy");
         mAgoraAPI.logout();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.i(TAG, "onActivityResult requestCode: " + requestCode + " resultCode: " + resultCode);
+        Ls.w("onActivityResult requestCode: " + requestCode + " resultCode: " + resultCode);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             if (data != null && data.getStringExtra("result").equals("finish")) {
                 finish();

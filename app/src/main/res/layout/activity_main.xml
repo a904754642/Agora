@@ -6,7 +6,6 @@
     android:background="@drawable/bg">
 
     <TextView
-
         android:id="@+id/main_edit_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
