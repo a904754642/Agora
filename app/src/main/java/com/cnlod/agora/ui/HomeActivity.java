@@ -191,7 +191,7 @@ public class HomeActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (!isAudio) {//音频
+                        if (!isAudio) {//音频  TODO ????反着来
                             Intent intent = new Intent(HomeActivity.this, CallForAudioActivity.class);
                             intent.putExtra("account", Constant.userId1);//自己
                             intent.putExtra("channelName", channelID);

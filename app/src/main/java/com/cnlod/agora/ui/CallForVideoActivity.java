@@ -8,8 +8,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -21,8 +24,14 @@ import android.widget.Toast;
 import com.cnlod.agora.AGApplication;
 import com.cnlod.agora.Constant;
 import com.cnlod.agora.R;
+import com.cnlod.agora.adapter.SurfaceAdapter;
 import com.cnlod.agora.util.Ls;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import io.agora.AgoraAPI;
@@ -51,21 +60,24 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     private TextView mCallTitle;
     private ImageView mCallOutHangupBtn;
     private RelativeLayout mLayoutCallIn;
+    private Button inviteDoctorBtn, invitePatientBtn;
 
     private FrameLayout mLayoutBigView;
-    private FrameLayout mLayoutSmallView;
+    //    private FrameLayout mLayoutSmallView1, mLayoutSmallView2;
+    private RecyclerView smallRecyclerView;
 
     private String channelName = "channelid";
     private int callType = -1;
     private boolean mIsCallInRefuse = false;
-    private int mRemoteUid = 0;
+//    private int mRemoteUid = 0;
+
+    private List<Integer> uids = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call_video);
         Ls.e("视频！！！！");
-
         InitUI();
 
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO)
@@ -85,11 +97,28 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         mLayoutCallIn = findViewById(R.id.call_layout_callin);
 
         mLayoutBigView = findViewById(R.id.big_video_view_container);
-        mLayoutSmallView = findViewById(R.id.small_video_view_container);
+//        mLayoutSmallView1 = findViewById(R.id.small_video_view_container1);
+//        mLayoutSmallView2 = findViewById(R.id.small_video_view_container2);
+        smallRecyclerView = findViewById(R.id.small_video_recycler);
+
+        inviteDoctorBtn = findViewById(R.id.btn_invited);
+        invitePatientBtn = findViewById(R.id.btn_invitep);
+
+        smallRecyclerView.setLayoutManager(new GridLayoutManager(this, 4));
+
     }
 
     private void setupData() {
         Intent intent = getIntent();
+
+        String myself = intent.getStringExtra("account");
+        if (myself.equals(Constant.userId2)) {
+            inviteDoctorBtn.setVisibility(View.VISIBLE);
+            invitePatientBtn.setVisibility(View.VISIBLE);
+        } else {
+            inviteDoctorBtn.setVisibility(View.INVISIBLE);
+            invitePatientBtn.setVisibility(View.INVISIBLE);
+        }
 
         mSubscriber = intent.getStringExtra("subscriber");//对方
         channelName = intent.getStringExtra("channelName");
@@ -124,10 +153,10 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mRemoteUid != 0) {
-                    return;
-                }
-                mRemoteUid = uid;
+//                if (mRemoteUid != 0) {
+//                    return;
+//                }
+//                mRemoteUid = uid;
                 setupRemoteVideo(uid);
             }
         });
@@ -179,6 +208,14 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
             case R.id.call_out_hangup: // call out canceled or call ended
 
                 callOutHangup();
+                break;
+
+            case R.id.btn_invited://邀请医生
+                Ls.ts("邀请医生");
+                mAgoraAPI.queryUserStatus(Constant.userId3);
+                break;
+            case R.id.btn_invitep://邀请患者
+                Ls.ts("邀请患者");
                 break;
         }
     }
@@ -254,7 +291,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
              */
             @Override
             public void onInviteReceivedByPeer(final String channelID, String account, int uid) {
-                Ls.w( "onInviteReceivedByPeer  channelID = " + channelID + "  account = " + account);
+                Ls.e("onInviteReceivedByPeer  channelID = " + channelID + "  account = " + account);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -268,17 +305,15 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
             /**
              * other receiver call accept callback
-             * @param channelID
-             * @param account
-             * @param uid
-             * @param s2
              */
             @Override
-            public void onInviteAcceptedByPeer(String channelID, String account, int uid, String s2) {
+            public void onInviteAcceptedByPeer(String channelID, String account, final int uid, String s2) {
+                Ls.e("onInviteAcceptedByPeer   channelID = " + channelID + "  account = " + account + "  uid=" + uid + "  s2 =" + s2);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mCallTitle.setVisibility(View.GONE);
+//                        mRemoteUid = 0;
                     }
                 });
 
@@ -286,10 +321,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
             /**
              * other receiver call refuse callback
-             * @param channelID
-             * @param account
-             * @param uid
-             * @param s2
              */
 
             @Override
@@ -312,19 +343,16 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
             /**
              * end call remote receiver callback
-             * @param channelID
-             * @param account
-             * @param uid
-             * @param s2
+             * 邀请者主动结束
              */
             @Override
             public void onInviteEndByPeer(final String channelID, String account, int uid, String s2) {
-                Ls.w( "onInviteEndByPeer channelID = " + channelID + " account = " + account);
+                Ls.w("onInviteEndByPeer channelID = " + channelID + " account = " + account + "  uid=" + uid);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if (channelID.equals(channelName)) {
-                            onEncCallClicked();
+//                            onEncCallClicked();
                         }
 
                     }
@@ -333,9 +361,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
             /**
              * end call local receiver callback
-             * @param channelID
-             * @param account
-             * @param uid
              */
             @Override
             public void onInviteEndByMyself(String channelID, String account, int uid) {
@@ -344,6 +369,50 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
                     @Override
                     public void run() {
                         onEncCallClicked();
+                    }
+                });
+            }
+
+
+            @Override
+            public void onError(final String s, final int i, final String s1) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (s.equals("query_user_status")) {
+                            Ls.ts(s1);
+                        }
+
+                        if (i == 208) {
+                            Ls.ts("用户已登录");
+                        } else {
+                            Ls.e("onError s = " + s + " i = " + i + " s1 = " + s1);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onQueryUserStatusResult(final String name, final String status) {
+                Ls.w("222-----onQueryUserStatusResult name = " + name + " status = " + status);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (status.equals("1")) {
+                            Ls.e("目标在线，准备邀请");
+
+                            JSONObject json = new JSONObject();
+                            try {
+                                json.put("isAudio", 1);// TODO ????反着来
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+//
+                            mAgoraAPI.channelInviteUser2("channel", name, json.toString());//json.toString()
+                        } else if (status.equals("0")) {
+                            Ls.ts(name + " is offline ，不在线");
+                        }
                     }
                 });
             }
@@ -416,7 +485,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     // Tutorial Step 2
     private void setupVideoProfile() {
         mRtcEngine.enableVideo();
-//      mRtcEngine.setVideoProfile(Constants.VIDEO_PROFILE_360P, false); // Earlier than 2.3.0
 
         //设置视频编码配置
         mRtcEngine.setVideoEncoderConfiguration(new VideoEncoderConfiguration(VideoEncoderConfiguration.VD_640x360, VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_15,
@@ -444,16 +512,21 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     // 步骤a:都显示自己  （已完成）
     // 步骤b:医生端统一显示患者  （待完成）
     private void setupRemoteVideo(int uid) {
+        Ls.e("uids  " + uids.size());
         Ls.w( "setupRemoteVideo uid: " + uid + " " + mLayoutBigView.getChildCount());
         if (mLayoutBigView.getChildCount() >= 1) {
             mLayoutBigView.removeAllViews();
         }
 
-        SurfaceView surfaceViewSmall = RtcEngine.CreateRendererView(getBaseContext());
-        surfaceViewSmall.setZOrderMediaOverlay(true);//覆盖在另一个surfaceView上面
-        mLayoutSmallView.addView(surfaceViewSmall);
-        mRtcEngine.setupRemoteVideo(new VideoCanvas(surfaceViewSmall, VideoCanvas.RENDER_MODE_HIDDEN, uid));
-        mLayoutSmallView.setVisibility(View.VISIBLE);
+        uids.add(uid);
+        smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
+        smallRecyclerView.setVisibility(View.VISIBLE);
+
+//        SurfaceView surfaceViewSmall = RtcEngine.CreateRendererView(getBaseContext());
+//        surfaceViewSmall.setZOrderMediaOverlay(true);//覆盖在另一个surfaceView上面
+//        mRtcEngine.setupRemoteVideo(new VideoCanvas(surfaceViewSmall, VideoCanvas.RENDER_MODE_HIDDEN, uid));
+//        mLayoutSmallView1.addView(surfaceViewSmall);
+//        mLayoutSmallView1.setVisibility(View.VISIBLE);
 
         SurfaceView surfaceView = RtcEngine.CreateRendererView(getBaseContext());
         mLayoutBigView.addView(surfaceView);
@@ -464,7 +537,11 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
     // Tutorial Step 7
     private void onRemoteUserLeft(int uid) {
-        if (uid == mRemoteUid) {
+        if (uids.size() > 2) {
+            //不能使用  uid.remove(uid),不能按次序删除，而是按对象删除
+            uids.remove(Integer.valueOf(uid));
+            smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
+        } else {
             finish();
         }
     }

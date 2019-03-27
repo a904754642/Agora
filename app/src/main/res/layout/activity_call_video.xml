@@ -10,17 +10,33 @@
         android:background="@android:color/white"
         />
 
-    <FrameLayout
-        android:id="@+id/small_video_view_container"
-        android:layout_width="150dp"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/small_video_recycler"
+        android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        />
+        android:layout_margin="10dp"
+        android:visibility="gone"/>
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal">-->
+
+        <!--<FrameLayout-->
+            <!--android:id="@+id/small_video_view_container1"-->
+            <!--android:layout_width="150dp"-->
+            <!--android:layout_height="150dp"-->
+            <!--android:layout_margin="@dimen/activity_vertical_margin"-->
+            <!--/>-->
+
+        <!--<FrameLayout-->
+            <!--android:id="@+id/small_video_view_container2"-->
+            <!--android:layout_width="150dp"-->
+            <!--android:layout_height="150dp"-->
+            <!--android:layout_margin="@dimen/activity_vertical_margin"-->
+            <!--/>-->
+
+    <!--</LinearLayout>-->
 
     <TextView
         android:id="@+id/meet_title"
@@ -32,10 +48,12 @@
         android:gravity="center"
         android:paddingTop="40dp"/>
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/call_layout_tools"
         android:layout_width="match_parent"
         android:layout_height="64dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="120dp">
 
@@ -44,20 +62,38 @@
             android:layout_width="28dp"
             android:layout_height="40dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="40dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
             android:background="@drawable/select_checkbox_mute"
             android:button="@null"/>
+
+        <Button
+            android:id="@+id/btn_invited"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="CallClickInit"
+            android:text="邀请医生"/>
+
+        <Button
+            android:id="@+id/btn_invitep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="CallClickInit"
+            android:text="邀请患者"/>
 
         <ImageView
             android:id="@+id/call_switch_camera"
             android:layout_width="44dp"
             android:layout_height="40dp"
+            android:layout_marginLeft="30dp"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="40dp"
+            android:layout_marginRight="30dp"
             android:onClick="onSwitchCameraClicked"
             android:src="@drawable/icon_camera"/>
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/call_layout_callin"
