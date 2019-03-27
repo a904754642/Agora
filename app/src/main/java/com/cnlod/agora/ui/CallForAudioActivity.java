@@ -63,7 +63,7 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_call);
+        setContentView(R.layout.activity_call_audio);
         Ls.e("音频！！！！");
 
         InitUI();

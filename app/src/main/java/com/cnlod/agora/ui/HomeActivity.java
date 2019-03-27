@@ -87,12 +87,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void onInviteKF(View view) {//邀请客服语音通话
-        Ls.e("queryUserStatus--" + Constant.userId2);
+        Ls.w("queryUserStatus--" + Constant.userId2);
         mAgoraAPI.queryUserStatus(Constant.userId2);
     }
 
     public void onInviteDoctor(View view) {//邀请医生语音通话
-        Ls.e("queryUserStatus--" + Constant.userId2);
+        Ls.w("queryUserStatus--" + Constant.userId2);
         mAgoraAPI.queryUserStatus(Constant.userId3);
     }
 
@@ -106,7 +106,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void addCallback() {
-        Ls.w("111-----addCallback enter.");
         mAgoraAPI.callbackSet(new AgoraAPI.CallBack() {
 
             @Override
@@ -154,11 +153,10 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onInviteReceived(final String channelID, final String account, final int uid, final String s2) { //call out other remote receiver
                 Ls.e("111-----onInviteReceived  channelID = " + channelID + " account = " + account + "   uid=" + uid + "  s2 = " + s2);
+                Ls.e("222-----onInviteReceived  account = " + Constant.userId2);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        showNormalDialog(channelID, account, uid, s2);
-
                         try {
                             JSONObject json = new JSONObject(s2);
                             isAudio = json.optInt("isAudio") == 1;
@@ -166,11 +164,11 @@ public class HomeActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
 
-                        if (isAudio) {//音频
+                        if (!isAudio) {//音频
                             Intent intent = new Intent(HomeActivity.this, CallForAudioActivity.class);
-                            intent.putExtra("account", Constant.userId2);
+                            intent.putExtra("account", Constant.userId2);//自己
                             intent.putExtra("channelName", channelID);
-                            intent.putExtra("subscriber", account);
+                            intent.putExtra("subscriber", account);//对方
                             intent.putExtra("type", Constant.CALL_IN);
                             startActivityForResult(intent, REQUEST_CODE);
                         } else {
@@ -188,15 +186,16 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onInviteReceivedByPeer(final String channelID, final String account, int uid) {//call out other local receiver
-                Ls.w("onInviteReceivedByPeer  channelID = " + channelID + "  account = " + account);
+                Ls.e("111-----onInviteReceivedByPeer  channelID = " + channelID + "  account = " + account);
+                Ls.e("222-----onInviteReceivedByPeer  account  = " + Constant.userId1);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (isAudio) {//音频
+                        if (!isAudio) {//音频
                             Intent intent = new Intent(HomeActivity.this, CallForAudioActivity.class);
-                            intent.putExtra("account", Constant.userId1);
+                            intent.putExtra("account", Constant.userId1);//自己
                             intent.putExtra("channelName", channelID);
-                            intent.putExtra("subscriber", account);
+                            intent.putExtra("subscriber", account);//对方
                             intent.putExtra("type", Constant.CALL_OUT);
                             startActivityForResult(intent, REQUEST_CODE);
                         } else {//视频
@@ -215,7 +214,7 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onInviteFailed(String channelID, String account, int uid, int i1, String s2) {
-                Ls.e("111-----onInviteFailed  channelID = " + channelID + " account = " + account + "   uid=" + uid + " s2: " + s2 + " i1: " + i1);
+                Ls.w("111-----onInviteFailed  channelID = " + channelID + " account = " + account + "   uid=" + uid + " s2: " + s2 + " i1: " + i1);
             }
 
             @Override
@@ -238,7 +237,7 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onQueryUserStatusResult(final String name, final String status) {
-                Ls.e("111-----onQueryUserStatusResult name = " + name + " status = " + status);
+                Ls.w("111-----onQueryUserStatusResult name = " + name + " status = " + status);
 
                 runOnUiThread(new Runnable() {
                     @Override

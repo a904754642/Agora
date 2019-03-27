@@ -49,7 +49,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
     private CheckBox mCheckMute;
     private TextView mCallTitle;
-    private ImageView mCallHangupBtn;
+    private ImageView mCallOutHangupBtn;
     private RelativeLayout mLayoutCallIn;
 
     private FrameLayout mLayoutBigView;
@@ -63,7 +63,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_call);
+        setContentView(R.layout.activity_call_video);
         Ls.e("视频！！！！");
 
         InitUI();
@@ -76,34 +76,34 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     }
 
     private void InitUI() {
-        mCallTitle = (TextView) findViewById(R.id.meet_title);
+        mCallTitle = findViewById(R.id.meet_title);
 
-        mCheckMute = (CheckBox) findViewById(R.id.call_mute_button);
+        mCheckMute = findViewById(R.id.call_mute_button);
         mCheckMute.setOnCheckedChangeListener(oncheckChangeListerener);
 
-        mCallHangupBtn = (ImageView) findViewById(R.id.call_button_hangup);
-        mLayoutCallIn = (RelativeLayout) findViewById(R.id.call_layout_callin);
+        mCallOutHangupBtn = findViewById(R.id.call_out_hangup);
+        mLayoutCallIn = findViewById(R.id.call_layout_callin);
 
-        mLayoutBigView = (FrameLayout) findViewById(R.id.remote_video_view_container);
-        mLayoutSmallView = (FrameLayout) findViewById(R.id.local_video_view_container);
+        mLayoutBigView = findViewById(R.id.big_video_view_container);
+        mLayoutSmallView = findViewById(R.id.small_video_view_container);
     }
 
     private void setupData() {
         Intent intent = getIntent();
 
-        mSubscriber = intent.getStringExtra("subscriber");
+        mSubscriber = intent.getStringExtra("subscriber");//对方
         channelName = intent.getStringExtra("channelName");
         callType = intent.getIntExtra("type", -1);
-        if (callType == Constant.CALL_IN) {
-            mIsCallInRefuse = true;
+        if (callType == Constant.CALL_IN) {//收到视频邀请
+            mIsCallInRefuse = true;//todo ????
             mLayoutCallIn.setVisibility(View.VISIBLE);
-            mCallHangupBtn.setVisibility(View.GONE);
+            mCallOutHangupBtn.setVisibility(View.GONE);
             mCallTitle.setText(String.format(Locale.US, "%s is calling...", mSubscriber));
 
             setupLocalVideo(); // Tutorial Step 3
-        } else if (callType == Constant.CALL_OUT) {
+        } else if (callType == Constant.CALL_OUT) {//发送视频邀请
             mLayoutCallIn.setVisibility(View.GONE);
-            mCallHangupBtn.setVisibility(View.VISIBLE);
+            mCallOutHangupBtn.setVisibility(View.VISIBLE);
             mCallTitle.setText(String.format(Locale.US, "%s is be called...", mSubscriber));
 
             setupLocalVideo(); // Tutorial Step 3
@@ -172,11 +172,11 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
                 joinChannel(); // Tutorial Step 4
                 mAgoraAPI.channelInviteAccept(channelName, mSubscriber, 0, null);
                 mLayoutCallIn.setVisibility(View.GONE);
-                mCallHangupBtn.setVisibility(View.VISIBLE);
+                mCallOutHangupBtn.setVisibility(View.VISIBLE);
                 mCallTitle.setVisibility(View.GONE);
                 break;
 
-            case R.id.call_button_hangup: // call out canceled or call ended
+            case R.id.call_out_hangup: // call out canceled or call ended
 
                 callOutHangup();
                 break;
@@ -259,7 +259,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mCallHangupBtn.setVisibility(View.VISIBLE);
+                        mCallOutHangupBtn.setVisibility(View.VISIBLE);
 
                         mCallTitle.setText(String.format(Locale.US, "%s is being called ...", mSubscriber));
                     }
@@ -379,6 +379,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
     }
 
+    //返回键
     @Override
     public void onBackPressed() {
         Ls.w( "onBackPressed callType: " + callType + " mIsCallInRefuse: " + mIsCallInRefuse);
@@ -417,6 +418,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         mRtcEngine.enableVideo();
 //      mRtcEngine.setVideoProfile(Constants.VIDEO_PROFILE_360P, false); // Earlier than 2.3.0
 
+        //设置视频编码配置
         mRtcEngine.setVideoEncoderConfiguration(new VideoEncoderConfiguration(VideoEncoderConfiguration.VD_640x360, VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_15,
                 VideoEncoderConfiguration.STANDARD_BITRATE,
                 VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_FIXED_PORTRAIT));
@@ -439,6 +441,8 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     }
 
     // Tutorial Step 5
+    // 步骤a:都显示自己  （已完成）
+    // 步骤b:医生端统一显示患者  （待完成）
     private void setupRemoteVideo(int uid) {
         Ls.w( "setupRemoteVideo uid: " + uid + " " + mLayoutBigView.getChildCount());
         if (mLayoutBigView.getChildCount() >= 1) {
@@ -446,14 +450,14 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         }
 
         SurfaceView surfaceViewSmall = RtcEngine.CreateRendererView(getBaseContext());
-        surfaceViewSmall.setZOrderMediaOverlay(true);
+        surfaceViewSmall.setZOrderMediaOverlay(true);//覆盖在另一个surfaceView上面
         mLayoutSmallView.addView(surfaceViewSmall);
-        mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceViewSmall, VideoCanvas.RENDER_MODE_HIDDEN, 0));
+        mRtcEngine.setupRemoteVideo(new VideoCanvas(surfaceViewSmall, VideoCanvas.RENDER_MODE_HIDDEN, uid));
         mLayoutSmallView.setVisibility(View.VISIBLE);
 
         SurfaceView surfaceView = RtcEngine.CreateRendererView(getBaseContext());
         mLayoutBigView.addView(surfaceView);
-        mRtcEngine.setupRemoteVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_HIDDEN, uid));
+        mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_HIDDEN, 0));
         mLayoutBigView.setVisibility(View.VISIBLE);
     }
 
