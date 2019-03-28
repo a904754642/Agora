@@ -216,6 +216,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
                 break;
             case R.id.btn_invitep://邀请患者
                 Ls.ts("邀请患者");
+                mAgoraAPI.queryUserStatus(Constant.userId1);
                 break;
         }
     }
@@ -404,7 +405,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
                             JSONObject json = new JSONObject();
                             try {
-                                json.put("isAudio", 1);// TODO ????反着来
+                                json.put("isAudio", 0);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -537,7 +538,8 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
     // Tutorial Step 7
     private void onRemoteUserLeft(int uid) {
-        if (uids.size() > 2) {
+        Ls.e("onRemoteUserLeft   uids.size="+uids.size());
+        if (uids.size() > 1) {
             //不能使用  uid.remove(uid),不能按次序删除，而是按对象删除
             uids.remove(Integer.valueOf(uid));
             smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
