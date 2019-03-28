@@ -24,7 +24,7 @@ import io.agora.rtc.RtcEngine;
 
 public class HomeActivity extends AppCompatActivity {
     private Context mContext;
-    private boolean isAudio = true;
+    private boolean isAudio = false;
     private boolean loginFlag = false;
     private String appId;
     private AgoraAPIOnlySignal mAgoraAPI;
@@ -64,26 +64,30 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    private String usrId;
 
     public void onPatient(View view) {//我是患者
         setBtnEnable(conn2KFBtn, true);
         setBtnEnable(conn2DOCBtn, false);
+        usrId=Constant.userId1;
 
-        AGApplication.the().getmAgoraAPI().login2(appId, Constant.userId1, "_no_need_token", 0, "", 5, 1);
+        mAgoraAPI.login2(appId, Constant.userId1, "_no_need_token", 0, "", 5, 1);
     }
 
     public void onKF(View view) {//我是客服
         setBtnEnable(conn2KFBtn, false);
         setBtnEnable(conn2DOCBtn, true);
+        usrId=Constant.userId2;
 
-        AGApplication.the().getmAgoraAPI().login2(appId, Constant.userId2, "_no_need_token", 0, "", 5, 1);
+        mAgoraAPI.login2(appId, Constant.userId2, "_no_need_token", 0, "", 5, 1);
     }
 
     public void onDoctor(View view) {//我是医生
         setBtnEnable(conn2KFBtn, false);
         setBtnEnable(conn2DOCBtn, false);
+        usrId=Constant.userId3;
 
-        AGApplication.the().getmAgoraAPI().login2(appId, Constant.userId3, "_no_need_token", 0, "", 5, 1);
+        mAgoraAPI.login2(appId, Constant.userId3, "_no_need_token", 0, "", 5, 1);
     }
 
     public void onInviteKF(View view) {//邀请客服语音通话
@@ -116,6 +120,7 @@ public class HomeActivity extends AppCompatActivity {
                     public void run() {
                         loginFlag = true;
                         Ls.ts("注册成功");
+//                        mAgoraAPI.setAttr("name",usrId);
                     }
                 });
             }
@@ -166,14 +171,14 @@ public class HomeActivity extends AppCompatActivity {
 
                         if (isAudio) {//音频
                             Intent intent = new Intent(HomeActivity.this, CallForAudioActivity.class);
-                            intent.putExtra("account", Constant.userId2);//自己
+                            intent.putExtra("account", usrId);//自己
                             intent.putExtra("channelName", channelID);
                             intent.putExtra("subscriber", account);//对方
                             intent.putExtra("type", Constant.CALL_IN);
                             startActivityForResult(intent, REQUEST_CODE);
                         } else {
                             Intent intent = new Intent(HomeActivity.this, CallForVideoActivity.class);
-                            intent.putExtra("account", Constant.userId2);
+                            intent.putExtra("account", usrId);
                             intent.putExtra("channelName", channelID);
                             intent.putExtra("subscriber", account);
                             intent.putExtra("type", Constant.CALL_IN);
@@ -193,14 +198,14 @@ public class HomeActivity extends AppCompatActivity {
                     public void run() {
                         if (isAudio) {//音频
                             Intent intent = new Intent(HomeActivity.this, CallForAudioActivity.class);
-                            intent.putExtra("account", Constant.userId1);//自己
+                            intent.putExtra("account", usrId);//自己
                             intent.putExtra("channelName", channelID);
                             intent.putExtra("subscriber", account);//对方
                             intent.putExtra("type", Constant.CALL_OUT);
                             startActivityForResult(intent, REQUEST_CODE);
                         } else {//视频
                             Intent intent = new Intent(HomeActivity.this, CallForVideoActivity.class);
-                            intent.putExtra("account", Constant.userId1);
+                            intent.putExtra("account", usrId);
                             intent.putExtra("channelName", channelID);
                             intent.putExtra("subscriber", account);
                             intent.putExtra("type", Constant.CALL_OUT);

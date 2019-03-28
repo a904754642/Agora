@@ -70,6 +70,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     private int callType = -1;
     private boolean mIsCallInRefuse = false;
 //    private int mRemoteUid = 0;
+    private String myself;
 
     private List<Integer> uids = new ArrayList<>();
 
@@ -111,7 +112,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     private void setupData() {
         Intent intent = getIntent();
 
-        String myself = intent.getStringExtra("account");
+        myself = intent.getStringExtra("account");
         if (myself.equals(Constant.userId2)) {
             inviteDoctorBtn.setVisibility(View.VISIBLE);
             invitePatientBtn.setVisibility(View.VISIBLE);
@@ -248,6 +249,12 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         mAgoraAPI.callbackSet(new AgoraAPI.CallBack() {
 
             @Override
+            public void onUserAttrResult(String account, String name, String value) {
+                super.onUserAttrResult(account, name, value);
+                Ls.e("account = " + account + "  name = " + name + "  value = " + value);
+            }
+
+            @Override
             public void onLogout(final int i) {
                 Ls.w( "onLogout  i = " + i);
                 runOnUiThread(new Runnable() {
@@ -362,6 +369,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
             /**
              * end call local receiver callback
+             * 自己退出
              */
             @Override
             public void onInviteEndByMyself(String channelID, String account, int uid) {
@@ -369,11 +377,30 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (myself.equals(Constant.userId2)) {//发送点对点信息
+                            mAgoraAPI.messageInstantSend(Constant.userId1, 0, "logout", "");
+                            mAgoraAPI.messageInstantSend(Constant.userId3, 0, "logout", "");
+                        }
                         onEncCallClicked();
+
                     }
                 });
             }
 
+            //收到点对点信息
+            @Override
+            public void onMessageInstantReceive(final String account, int uid, final String msg) {
+                super.onMessageInstantReceive(account, uid, msg);
+                Ls.e("onMessageInstantReceive     account = "+account+"    uid = "+uid+"  msg = "+msg);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(account.equals(Constant.userId2)&&"logout".equals(msg)){
+                            onEncCallClicked();
+                        }
+                    }
+                });
+            }
 
             @Override
             public void onError(final String s, final int i, final String s1) {
@@ -433,6 +460,8 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     protected void onResume() {
         super.onResume();
         addSignalingCallback();
+
+//        mAgoraAPI.getAttr("name");
     }
 
     @Override
@@ -562,7 +591,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
 
     public boolean checkSelfPermission(String permission, int requestCode) {
-        Ls.w( "checkSelfPermission " + permission + " " + requestCode);
         if (ContextCompat.checkSelfPermission(this,
                 permission)
                 != PackageManager.PERMISSION_GRANTED) {

@@ -479,7 +479,6 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
 
 
     public boolean checkSelfPermission(String permission, int requestCode) {
-        Ls.w( "checkSelfPermission " + permission + " " + requestCode);
         if (ContextCompat.checkSelfPermission(this,
                 permission)
                 != PackageManager.PERMISSION_GRANTED) {
