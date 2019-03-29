@@ -63,7 +63,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     private Button inviteDoctorBtn, invitePatientBtn;
 
     private FrameLayout mLayoutBigView;
-    //    private FrameLayout mLayoutSmallView1, mLayoutSmallView2;
     private RecyclerView smallRecyclerView;
 
     private String channelName = "channelid";
@@ -98,8 +97,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         mLayoutCallIn = findViewById(R.id.call_layout_callin);
 
         mLayoutBigView = findViewById(R.id.big_video_view_container);
-//        mLayoutSmallView1 = findViewById(R.id.small_video_view_container1);
-//        mLayoutSmallView2 = findViewById(R.id.small_video_view_container2);
         smallRecyclerView = findViewById(R.id.small_video_recycler);
 
         inviteDoctorBtn = findViewById(R.id.btn_invited);
@@ -122,6 +119,8 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         }
 
         mSubscriber = intent.getStringExtra("subscriber");//对方
+
+        Ls.e("我是" + myself + "  邀请对象是" + mSubscriber);
         channelName = intent.getStringExtra("channelName");
         callType = intent.getIntExtra("type", -1);
         if (callType == Constant.CALL_IN) {//收到视频邀请
@@ -146,6 +145,15 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         super.onNewIntent(intent);
         Ls.w( "onNewIntent");
         setupData();
+    }
+
+    @Override
+    public void onFirstLocalAudioFrame(int elapsed) {
+
+    }
+
+    @Override
+    public void onFirstRemoteAudioFrame(int uid, int elapsed) {
     }
 
     @Override
@@ -261,10 +269,10 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
                     @Override
                     public void run() {
                         if (i == IAgoraAPI.ECODE_LOGOUT_E_KICKED) { // other login the account
-                            Toast.makeText(CallForVideoActivity.this, "Other login account ,you are logout.", Toast.LENGTH_SHORT).show();
+                            Ls.ts("Other login account ,you are logout.");
 
                         } else if (i == IAgoraAPI.ECODE_LOGOUT_E_NET) { // net
-                            Toast.makeText(CallForVideoActivity.this, "Logout for Network can not be.", Toast.LENGTH_SHORT).show();
+                            Ls.ts("Logout for Network can not be.");
                             finish();
                         }
                         Intent intent = new Intent();
@@ -338,9 +346,9 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
                     @Override
                     public void run() {
                         if (s2.contains("status") && s2.contains("1")) {
-                            Toast.makeText(CallForVideoActivity.this, account + " reject your call for busy", Toast.LENGTH_SHORT).show();
+                            Ls.ts(account + " reject your call for busy");
                         } else {
-                            Toast.makeText(CallForVideoActivity.this, account + " reject your call", Toast.LENGTH_SHORT).show();
+                            Ls.ts(account + " reject your call");
                         }
 
                         onEncCallClicked();
@@ -552,12 +560,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
         smallRecyclerView.setVisibility(View.VISIBLE);
 
-//        SurfaceView surfaceViewSmall = RtcEngine.CreateRendererView(getBaseContext());
-//        surfaceViewSmall.setZOrderMediaOverlay(true);//覆盖在另一个surfaceView上面
-//        mRtcEngine.setupRemoteVideo(new VideoCanvas(surfaceViewSmall, VideoCanvas.RENDER_MODE_HIDDEN, uid));
-//        mLayoutSmallView1.addView(surfaceViewSmall);
-//        mLayoutSmallView1.setVisibility(View.VISIBLE);
-
         SurfaceView surfaceView = RtcEngine.CreateRendererView(getBaseContext());
         mLayoutBigView.addView(surfaceView);
         mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_HIDDEN, 0));
@@ -579,14 +581,14 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
     // Tutorial Step 10
     private void onRemoteUserVideoMuted(int uid, boolean muted) {
-        FrameLayout container = (FrameLayout) findViewById(R.id.remote_video_view_container);
-
-        SurfaceView surfaceView = (SurfaceView) container.getChildAt(0);
-
-        Object tag = surfaceView.getTag();
-        if (tag != null && (Integer) tag == uid) {
-            surfaceView.setVisibility(muted ? View.GONE : View.VISIBLE);
-        }
+//        FrameLayout container = (FrameLayout) findViewById(R.id.remote_video_view_container);
+//
+//        SurfaceView surfaceView = (SurfaceView) container.getChildAt(0);
+//
+//        Object tag = surfaceView.getTag();
+//        if (tag != null && (Integer) tag == uid) {
+//            surfaceView.setVisibility(muted ? View.GONE : View.VISIBLE);
+//        }
     }
 
 

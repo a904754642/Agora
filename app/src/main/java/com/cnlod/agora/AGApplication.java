@@ -27,6 +27,24 @@ public class AGApplication extends Application {
 
     private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() {
         @Override
+        public void onFirstLocalAudioFrame(int elapsed) {
+            super.onFirstLocalAudioFrame(elapsed);
+            Ls.e("##########       onFirstLocalAudioFrame");
+            if (onAgoraEngineInterface != null) {
+                onAgoraEngineInterface.onFirstLocalAudioFrame(elapsed);
+            }
+        }
+
+        @Override
+        public void onFirstRemoteAudioFrame(int uid, int elapsed) {
+            super.onFirstRemoteAudioFrame(uid, elapsed);
+            Ls.e("%%%%%%%%%%       onFirstRemoteAudioFrame");
+            if (onAgoraEngineInterface != null) {
+                onAgoraEngineInterface.onFirstRemoteAudioFrame(uid,elapsed);
+            }
+        }
+
+        @Override
         public void onFirstRemoteVideoDecoded(final int uid, int width, int height, int elapsed) {
             if (onAgoraEngineInterface != null) {
                 onAgoraEngineInterface.onFirstRemoteVideoDecoded(uid, width, height, elapsed);
@@ -92,6 +110,10 @@ public class AGApplication extends Application {
     }
 
     public interface OnAgoraEngineInterface {
+        void onFirstLocalAudioFrame(int elapsed);
+
+        void onFirstRemoteAudioFrame(int uid, int elapsed);
+
         void onFirstRemoteVideoDecoded(final int uid, int width, int height, int elapsed);
 
         void onUserOffline(int uid, int reason);

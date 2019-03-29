@@ -17,27 +17,6 @@
         android:layout_margin="10dp"
         android:visibility="gone"/>
 
-    <!--<LinearLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="horizontal">-->
-
-        <!--<FrameLayout-->
-            <!--android:id="@+id/small_video_view_container1"-->
-            <!--android:layout_width="150dp"-->
-            <!--android:layout_height="150dp"-->
-            <!--android:layout_margin="@dimen/activity_vertical_margin"-->
-            <!--/>-->
-
-        <!--<FrameLayout-->
-            <!--android:id="@+id/small_video_view_container2"-->
-            <!--android:layout_width="150dp"-->
-            <!--android:layout_height="150dp"-->
-            <!--android:layout_margin="@dimen/activity_vertical_margin"-->
-            <!--/>-->
-
-    <!--</LinearLayout>-->
-
     <TextView
         android:id="@+id/meet_title"
         android:layout_width="match_parent"

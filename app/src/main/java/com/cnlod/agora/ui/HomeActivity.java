@@ -120,7 +120,6 @@ public class HomeActivity extends AppCompatActivity {
                     public void run() {
                         loginFlag = true;
                         Ls.ts("注册成功");
-//                        mAgoraAPI.setAttr("name",usrId);
                     }
                 });
             }
@@ -169,22 +168,18 @@ public class HomeActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
 
+                        Intent intent = new Intent();
                         if (isAudio) {//音频
-                            Intent intent = new Intent(HomeActivity.this, CallForAudioActivity.class);
-                            intent.putExtra("account", usrId);//自己
-                            intent.putExtra("channelName", channelID);
-                            intent.putExtra("subscriber", account);//对方
-                            intent.putExtra("type", Constant.CALL_IN);
-                            startActivityForResult(intent, REQUEST_CODE);
-                        } else {
-                            Intent intent = new Intent(HomeActivity.this, CallForVideoActivity.class);
-                            intent.putExtra("account", usrId);
-                            intent.putExtra("channelName", channelID);
-                            intent.putExtra("subscriber", account);
-                            intent.putExtra("type", Constant.CALL_IN);
-                            startActivityForResult(intent, REQUEST_CODE);
+                            intent.setClass(mContext, CallForAudioActivity.class);
+                        } else {//视频
+                            intent.setClass(mContext, CallForVideoActivity.class);
                         }
-
+                        intent.putExtra("account", usrId);//自己
+                        intent.putExtra("channelName", channelID);
+                        intent.putExtra("subscriber", account);//对方
+                        intent.putExtra("type", Constant.CALL_IN);
+                        intent.putExtra("isAudio", isAudio);
+                        startActivityForResult(intent, REQUEST_CODE);
                     }
                 });
             }
@@ -196,21 +191,19 @@ public class HomeActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        Intent intent = new Intent();
                         if (isAudio) {//音频
-                            Intent intent = new Intent(HomeActivity.this, CallForAudioActivity.class);
-                            intent.putExtra("account", usrId);//自己
-                            intent.putExtra("channelName", channelID);
-                            intent.putExtra("subscriber", account);//对方
-                            intent.putExtra("type", Constant.CALL_OUT);
-                            startActivityForResult(intent, REQUEST_CODE);
+                            intent.setClass(mContext, CallForAudioActivity.class);
                         } else {//视频
-                            Intent intent = new Intent(HomeActivity.this, CallForVideoActivity.class);
-                            intent.putExtra("account", usrId);
-                            intent.putExtra("channelName", channelID);
-                            intent.putExtra("subscriber", account);
-                            intent.putExtra("type", Constant.CALL_OUT);
-                            startActivityForResult(intent, REQUEST_CODE);
+                            intent.setClass(mContext, CallForVideoActivity.class);
                         }
+                        intent.putExtra("account", usrId);//自己
+                        intent.putExtra("channelName", channelID);
+                        intent.putExtra("subscriber", account);//对方
+                        intent.putExtra("type", Constant.CALL_OUT);
+                        intent.putExtra("isAudio", isAudio);
+                        startActivityForResult(intent, REQUEST_CODE);
 
                     }
                 });
