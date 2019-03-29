@@ -22,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.cnlod.agora.AGApplication;
 import com.cnlod.agora.Constant;
 import com.cnlod.agora.R;
@@ -172,7 +173,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 //                    return;
 //                }
 //                mRemoteUid = uid;
-                setupRemoteVideo(uid);
+                setupRemoteVideo(uid, 0);
             }
         });
     }
@@ -566,20 +567,15 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     // Tutorial Step 5
     // 步骤a:都显示自己  （已完成）
     // 步骤b:医生端统一显示患者  （待完成）
-    private void setupRemoteVideo(int uid) {
+    private void setupRemoteVideo(int uid, int mid) {
         Ls.e("uids  " + uids.size());
-        Ls.w( "setupRemoteVideo uid: " + uid + " " + mLayoutBigView.getChildCount());
-        if (mLayoutBigView.getChildCount() >= 1) {
-            mLayoutBigView.removeAllViews();
-        }
+        Ls.w("setupRemoteVideo uid: " + uid);
+
         uids.add(uid);
-        smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
+        updateData(mid);
         smallRecyclerView.setVisibility(View.VISIBLE);
 
-        SurfaceView surfaceView = RtcEngine.CreateRendererView(getBaseContext());
-        mLayoutBigView.addView(surfaceView);
-        mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_HIDDEN, 0));
-        mLayoutBigView.setVisibility(View.VISIBLE);
+
     }
 
     // Tutorial Step 7
@@ -588,10 +584,35 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         if (uids.size() > 1) {
             //不能使用  uid.remove(uid),不能按次序删除，而是按对象删除
             uids.remove(Integer.valueOf(uid));
-            smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
+            updateData(0);
         } else {
             finish();
         }
+    }
+
+    private void updateData(final int mid) {
+        SurfaceAdapter adapter = new SurfaceAdapter(this, uids);
+        smallRecyclerView.setAdapter(adapter);
+
+        Ls.e("------------==========---  " + mid + "   mLayoutBigView.getChildCount()=" + mLayoutBigView.getChildCount());
+        if (mLayoutBigView.getChildCount() >= 1) {
+            mLayoutBigView.removeAllViews();
+        }
+
+        SurfaceView surfaceView = RtcEngine.CreateRendererView(getBaseContext());
+        mLayoutBigView.addView(surfaceView);
+        mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_HIDDEN, mid));
+        mLayoutBigView.setVisibility(View.VISIBLE);
+
+        adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                Integer uid = uids.get(position);
+                uids.set(position, mid);
+                updateData(uid);
+
+            }
+        });
     }
 
     // Tutorial Step 10

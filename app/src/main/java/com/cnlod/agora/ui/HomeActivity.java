@@ -29,9 +29,9 @@ public class HomeActivity extends AppCompatActivity {
     private String appId;
     private AgoraAPIOnlySignal mAgoraAPI;
     private final int REQUEST_CODE = 0x01;
+    private String usrId;
 
     private Button conn2KFBtn;
-    private Button conn2DOCBtn;
     private RadioGroup rg;
     private RadioButton rb1;
 
@@ -49,12 +49,10 @@ public class HomeActivity extends AppCompatActivity {
 
     private void initView() {
         conn2KFBtn = findViewById(R.id.btn_p4);
-        conn2DOCBtn = findViewById(R.id.btn_p5);
         rg = findViewById(R.id.rg);
         rb1 = findViewById(R.id.rb1);
 
         setBtnEnable(conn2KFBtn, false);
-        setBtnEnable(conn2DOCBtn, false);
 
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -64,30 +62,29 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private String usrId;
-
     public void onPatient(View view) {//我是患者
         setBtnEnable(conn2KFBtn, true);
-        setBtnEnable(conn2DOCBtn, false);
         usrId=Constant.userId1;
 
-        mAgoraAPI.login2(appId, Constant.userId1, "_no_need_token", 0, "", 5, 1);
+        login();
     }
 
     public void onKF(View view) {//我是客服
         setBtnEnable(conn2KFBtn, false);
-        setBtnEnable(conn2DOCBtn, true);
         usrId=Constant.userId2;
 
-        mAgoraAPI.login2(appId, Constant.userId2, "_no_need_token", 0, "", 5, 1);
+        login();
     }
 
     public void onDoctor(View view) {//我是医生
         setBtnEnable(conn2KFBtn, false);
-        setBtnEnable(conn2DOCBtn, false);
         usrId=Constant.userId3;
 
-        mAgoraAPI.login2(appId, Constant.userId3, "_no_need_token", 0, "", 5, 1);
+        login();
+    }
+
+    private void login() {
+        mAgoraAPI.login2(appId, usrId, "_no_need_token", 0, "", 5, 1);
     }
 
     public void onInviteKF(View view) {//邀请客服语音通话
@@ -157,7 +154,6 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onInviteReceived(final String channelID, final String account, final int uid, final String s2) { //call out other remote receiver
                 Ls.e("111-----onInviteReceived  channelID = " + channelID + " account = " + account + "   uid=" + uid + "  s2 = " + s2);
-                Ls.e("222-----onInviteReceived  account = " + Constant.userId2);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -187,7 +183,6 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onInviteReceivedByPeer(final String channelID, final String account, int uid) {//call out other local receiver
                 Ls.e("111-----onInviteReceivedByPeer  channelID = " + channelID + "  account = " + account);
-                Ls.e("222-----onInviteReceivedByPeer  account  = " + Constant.userId1);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

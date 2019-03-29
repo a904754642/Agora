@@ -579,9 +579,15 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
         super.onBackPressed();
     }
 
+    boolean isSpeak=true;
     // Tutorial Step 8
-    public void onSwitchCameraClicked(View view) {
-        mRtcEngine.switchCamera();
+    public void onSwitchCameraClicked(View view) {//免提
+//        mRtcEngine.switchCamera();
+        boolean sss=mRtcEngine.isSpeakerphoneEnabled();
+        Ls.e("sss   "+sss);
+        isSpeak=!isSpeak;
+        mRtcEngine.setEnableSpeakerphone(isSpeak);
+
     }
 
     // Tutorial Step 6
@@ -623,6 +629,7 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
 
     // Tutorial Step 4
     private void joinChannel() {
+        mRtcEngine.setDefaultAudioRoutetoSpeakerphone(true);
         int ret = mRtcEngine.joinChannel(null, channelName, "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
         Ls.w( "joinChannel enter ret :" + ret);
         mAgoraAPI.channelJoin(channelName);

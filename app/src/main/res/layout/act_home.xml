@@ -64,15 +64,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onInviteKF"
-        android:text="邀请客服语音通话"/>
-
-    <Button
-        android:id="@+id/btn_p5"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:onClick="onInviteDoctor"
-        android:text="邀请医生语音通话"/>
-
+        android:text="邀请客服"/>
 
 </LinearLayout>
