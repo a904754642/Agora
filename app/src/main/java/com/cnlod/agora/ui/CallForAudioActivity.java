@@ -133,14 +133,14 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
         Ls.e("我是" + myself + "  对方是" + mSubscriber);
         channelName = intent.getStringExtra("channelName");
         callType = intent.getIntExtra("type", -1);
-        if (callType == Constant.CALL_IN) {//收到音频邀请
+        if (callType == Constant.CALL_IN) {//收到邀请
             mIsCallInRefuse = true;//todo ????
             mLayoutCallIn.setVisibility(View.VISIBLE);
             mCallOutHangupBtn.setVisibility(View.GONE);
             mCallTitle.setText(String.format(Locale.US, "%s is calling...", mSubscriber));
 
 //            setupLocalVideo(); // Tutorial Step 3
-        } else if (callType == Constant.CALL_OUT) {//发送音频邀请
+        } else if (callType == Constant.CALL_OUT) {//发送邀请
             mLayoutCallIn.setVisibility(View.GONE);
             mCallOutHangupBtn.setVisibility(View.VISIBLE);
             mCallTitle.setText(String.format(Locale.US, "%s is be called...", mSubscriber));
@@ -302,13 +302,15 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
                         if (user.getResult().equals("ok")) {
                             Map<String, Integer> map = user.getList();
                             list.clear();
+                            List<String> audios=new ArrayList<>();
                             for (String key : map.keySet()) {
-                                if (!key.equals(myself)) {
-                                    list.add(key);
+                                list.add(key);
+                                if(!myself.equals(key)){
+                                    audios.add(key);
                                 }
                             }
 
-                            smallRecyclerView.setAdapter(new AudioAdapter(mContext, list));
+                            smallRecyclerView.setAdapter(new AudioAdapter(mContext, audios));
                             smallRecyclerView.setVisibility(View.VISIBLE);
                         }
                     }
@@ -393,7 +395,7 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
              */
 
             @Override
-            public void onInviteRefusedByPeer(String channelID, final String account, int uid, final String s2) {
+            public void onInviteRefusedByPeer(String channelID, final String account, final int uid, final String s2) {
                 Ls.w( "onInviteRefusedByPeer channelID = " + channelID + " account = " + account + " s2 = " + s2);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -404,7 +406,20 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
                             Ls.ts(account + " reject your call");
                         }
 
-                        onEncCallClicked();
+                        Ls.e(list.size()+"   - - -   "+uids.size());
+                        if (isAudio) {
+                            if (list.size() > 1) {
+                            } else {
+                                onEncCallClicked();
+                            }
+                        } else {
+                            if (uids.size() > 1) {
+
+                            } else {
+                                onEncCallClicked();
+                            }
+                        }
+
                     }
                 });
             }
@@ -497,7 +512,7 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-//
+
                             mAgoraAPI.channelInviteUser2("channel", name, json.toString());//json.toString()
                         } else if (status.equals("0")) {
                             Ls.ts(name + " is offline ，不在线");

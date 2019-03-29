@@ -1,6 +1,7 @@
 package com.cnlod.agora.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -24,7 +25,6 @@ import android.widget.Toast;
 import com.cnlod.agora.AGApplication;
 import com.cnlod.agora.Constant;
 import com.cnlod.agora.R;
-import com.cnlod.agora.adapter.SurfaceAdapter;
 import com.cnlod.agora.util.Ls;
 
 import org.json.JSONException;
@@ -70,8 +70,10 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     private boolean mIsCallInRefuse = false;
 //    private int mRemoteUid = 0;
     private String myself;
+    private boolean isAudio;
 
     private List<Integer> uids = new ArrayList<>();
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         setContentView(R.layout.activity_call_video);
         Ls.e("视频！！！！");
         InitUI();
+        mContext = this;
 
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO)
                 && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)
@@ -109,6 +112,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     private void setupData() {
         Intent intent = getIntent();
 
+        isAudio = intent.getBooleanExtra("isAudio", false);
         myself = intent.getStringExtra("account");
         if (myself.equals(Constant.userId2)) {
             inviteDoctorBtn.setVisibility(View.VISIBLE);
@@ -120,17 +124,17 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
         mSubscriber = intent.getStringExtra("subscriber");//对方
 
-        Ls.e("我是" + myself + "  邀请对象是" + mSubscriber);
+        Ls.e("我是" + myself + "  对方是" + mSubscriber);
         channelName = intent.getStringExtra("channelName");
         callType = intent.getIntExtra("type", -1);
-        if (callType == Constant.CALL_IN) {//收到视频邀请
+        if (callType == Constant.CALL_IN) {//收到邀请
             mIsCallInRefuse = true;//todo ????
             mLayoutCallIn.setVisibility(View.VISIBLE);
             mCallOutHangupBtn.setVisibility(View.GONE);
             mCallTitle.setText(String.format(Locale.US, "%s is calling...", mSubscriber));
 
             setupLocalVideo(); // Tutorial Step 3
-        } else if (callType == Constant.CALL_OUT) {//发送视频邀请
+        } else if (callType == Constant.CALL_OUT) {//发送邀请
             mLayoutCallIn.setVisibility(View.GONE);
             mCallOutHangupBtn.setVisibility(View.VISIBLE);
             mCallTitle.setText(String.format(Locale.US, "%s is be called...", mSubscriber));
@@ -263,6 +267,34 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
             }
 
             @Override
+            public void onInvokeRet(String callID, String err, final String resp) {
+                super.onInvokeRet(callID, err, resp);
+                Ls.e("onInvokeRet     err=" + err + "  resp=" + resp);
+//                {"list":[["34",947090903],["22",186136837],["2",448070539]],"num":3,"result":"ok"}
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+//                        User user = GsonUtil.GsonToBean(resp, User.class);
+//                        if (user.getResult().equals("ok")) {
+//                            Map<String, Integer> map = user.getList();
+//                            list.clear();
+//                            List<String> audios=new ArrayList<>();
+//                            for (String key : map.keySet()) {
+//                                list.add(key);
+//                                if(!myself.equals(key)){
+//                                    audios.add(key);
+//                                }
+//                            }
+//
+//                            smallRecyclerView.setAdapter(new AudioAdapter(mContext, audios));
+//                            smallRecyclerView.setVisibility(View.VISIBLE);
+//                        }
+                    }
+                });
+            }
+
+            @Override
             public void onLogout(final int i) {
                 Ls.w( "onLogout  i = " + i);
                 runOnUiThread(new Runnable() {
@@ -351,7 +383,12 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
                             Ls.ts(account + " reject your call");
                         }
 
-                        onEncCallClicked();
+                        Ls.e("uids.size() "+uids.size());
+                        if (uids.size() > 1) {
+
+                        } else {
+                            onEncCallClicked();
+                        }
                     }
                 });
             }
@@ -399,11 +436,11 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
             @Override
             public void onMessageInstantReceive(final String account, int uid, final String msg) {
                 super.onMessageInstantReceive(account, uid, msg);
-                Ls.e("onMessageInstantReceive     account = "+account+"    uid = "+uid+"  msg = "+msg);
+                Ls.e("onMessageInstantReceive     account = " + account + "    uid = " + uid + "  msg = " + msg);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(account.equals(Constant.userId2)&&"logout".equals(msg)){
+                        if (account.equals(Constant.userId2) && "logout".equals(msg)) {
                             onEncCallClicked();
                         }
                     }
@@ -440,11 +477,11 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
                             JSONObject json = new JSONObject();
                             try {
-                                json.put("isAudio", 0);
+                                json.put("isAudio", isAudio ? 1 : 0);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-//
+
                             mAgoraAPI.channelInviteUser2("channel", name, json.toString());//json.toString()
                         } else if (status.equals("0")) {
                             Ls.ts(name + " is offline ，不在线");
@@ -483,6 +520,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
             mRtcEngine.leaveChannel();
         }
         mRtcEngine = null;
+        mAgoraAPI.channelLeave(channelName);
 
     }
 
@@ -544,6 +582,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     private void joinChannel() {
         int ret = mRtcEngine.joinChannel(null, channelName, "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
         Ls.w( "joinChannel enter ret :" + ret);
+        mAgoraAPI.channelJoin(channelName);
     }
 
     // Tutorial Step 5
@@ -555,10 +594,10 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         if (mLayoutBigView.getChildCount() >= 1) {
             mLayoutBigView.removeAllViews();
         }
-
-        uids.add(uid);
-        smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
-        smallRecyclerView.setVisibility(View.VISIBLE);
+        setupRemoteAudio();
+//        uids.add(uid);
+//        smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
+//        smallRecyclerView.setVisibility(View.VISIBLE);
 
         SurfaceView surfaceView = RtcEngine.CreateRendererView(getBaseContext());
         mLayoutBigView.addView(surfaceView);
@@ -566,14 +605,26 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         mLayoutBigView.setVisibility(View.VISIBLE);
     }
 
+    private void setupRemoteAudio() {//"{\"status\":1}"
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", channelName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        mAgoraAPI.invoke("io.agora.signal.channel_query_userlist", json.toString(), "");
+
+    }
 
     // Tutorial Step 7
     private void onRemoteUserLeft(int uid) {
         Ls.e("onRemoteUserLeft   uids.size="+uids.size());
         if (uids.size() > 1) {
+            setupRemoteAudio();
             //不能使用  uid.remove(uid),不能按次序删除，而是按对象删除
-            uids.remove(Integer.valueOf(uid));
-            smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
+//            uids.remove(Integer.valueOf(uid));
+//            smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
         } else {
             finish();
         }

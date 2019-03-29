@@ -46,9 +46,16 @@ public class AGApplication extends Application {
 
         @Override
         public void onFirstRemoteVideoDecoded(final int uid, int width, int height, int elapsed) {
+            Ls.e("%%%%%%%%%%       onFirstRemoteVideoDecoded");
             if (onAgoraEngineInterface != null) {
                 onAgoraEngineInterface.onFirstRemoteVideoDecoded(uid, width, height, elapsed);
             }
+        }
+
+        @Override
+        public void onFirstLocalVideoFrame(int width, int height, int elapsed) {
+            Ls.e("##########       onFirstLocalVideoFrame");
+            super.onFirstLocalVideoFrame(width, height, elapsed);
         }
 
         @Override
