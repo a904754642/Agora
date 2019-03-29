@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.cnlod.agora.AGApplication;
 import com.cnlod.agora.Constant;
 import com.cnlod.agora.R;
+import com.cnlod.agora.adapter.SurfaceAdapter;
 import com.cnlod.agora.util.Ls;
 
 import org.json.JSONException;
@@ -158,6 +159,7 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
 
     @Override
     public void onFirstRemoteAudioFrame(int uid, int elapsed) {
+        Ls.e("onFirstRemoteAudioFrame-------uid="+uid);
     }
 
     @Override
@@ -264,34 +266,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
             public void onUserAttrResult(String account, String name, String value) {
                 super.onUserAttrResult(account, name, value);
                 Ls.e("account = " + account + "  name = " + name + "  value = " + value);
-            }
-
-            @Override
-            public void onInvokeRet(String callID, String err, final String resp) {
-                super.onInvokeRet(callID, err, resp);
-                Ls.e("onInvokeRet     err=" + err + "  resp=" + resp);
-//                {"list":[["34",947090903],["22",186136837],["2",448070539]],"num":3,"result":"ok"}
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-//                        User user = GsonUtil.GsonToBean(resp, User.class);
-//                        if (user.getResult().equals("ok")) {
-//                            Map<String, Integer> map = user.getList();
-//                            list.clear();
-//                            List<String> audios=new ArrayList<>();
-//                            for (String key : map.keySet()) {
-//                                list.add(key);
-//                                if(!myself.equals(key)){
-//                                    audios.add(key);
-//                                }
-//                            }
-//
-//                            smallRecyclerView.setAdapter(new AudioAdapter(mContext, audios));
-//                            smallRecyclerView.setVisibility(View.VISIBLE);
-//                        }
-                    }
-                });
             }
 
             @Override
@@ -406,6 +380,12 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
                     public void run() {
                         if (channelID.equals(channelName)) {
 //                            onEncCallClicked();
+                            Ls.e("uids.size() "+uids.size());
+                            if (uids.size() > 1) {
+
+                            } else {
+                                onEncCallClicked();
+                            }
                         }
 
                     }
@@ -520,7 +500,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
             mRtcEngine.leaveChannel();
         }
         mRtcEngine = null;
-        mAgoraAPI.channelLeave(channelName);
 
     }
 
@@ -582,7 +561,6 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
     private void joinChannel() {
         int ret = mRtcEngine.joinChannel(null, channelName, "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
         Ls.w( "joinChannel enter ret :" + ret);
-        mAgoraAPI.channelJoin(channelName);
     }
 
     // Tutorial Step 5
@@ -594,10 +572,9 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         if (mLayoutBigView.getChildCount() >= 1) {
             mLayoutBigView.removeAllViews();
         }
-        setupRemoteAudio();
-//        uids.add(uid);
-//        smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
-//        smallRecyclerView.setVisibility(View.VISIBLE);
+        uids.add(uid);
+        smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
+        smallRecyclerView.setVisibility(View.VISIBLE);
 
         SurfaceView surfaceView = RtcEngine.CreateRendererView(getBaseContext());
         mLayoutBigView.addView(surfaceView);
@@ -605,26 +582,13 @@ public class CallForVideoActivity extends AppCompatActivity implements AGApplica
         mLayoutBigView.setVisibility(View.VISIBLE);
     }
 
-    private void setupRemoteAudio() {//"{\"status\":1}"
-        JSONObject json = new JSONObject();
-        try {
-            json.put("name", channelName);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        mAgoraAPI.invoke("io.agora.signal.channel_query_userlist", json.toString(), "");
-
-    }
-
     // Tutorial Step 7
     private void onRemoteUserLeft(int uid) {
         Ls.e("onRemoteUserLeft   uids.size="+uids.size());
         if (uids.size() > 1) {
-            setupRemoteAudio();
             //不能使用  uid.remove(uid),不能按次序删除，而是按对象删除
-//            uids.remove(Integer.valueOf(uid));
-//            smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
+            uids.remove(Integer.valueOf(uid));
+            smallRecyclerView.setAdapter(new SurfaceAdapter(this, uids));
         } else {
             finish();
         }

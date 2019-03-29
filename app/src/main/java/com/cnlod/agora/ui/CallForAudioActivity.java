@@ -436,7 +436,19 @@ public class CallForAudioActivity extends AppCompatActivity implements AGApplica
                     @Override
                     public void run() {
                         if (channelID.equals(channelName)) {
-//                            onEncCallClicked();
+                             Ls.e(list.size() + "   - - -   " + uids.size());
+                            if (isAudio) {
+                                if (list.size() > 1) {
+                                } else {
+                                    onEncCallClicked();
+                                }
+                            } else {
+                                if (uids.size() > 1) {
+
+                                } else {
+                                    onEncCallClicked();
+                                }
+                            }
                         }
 
                     }
